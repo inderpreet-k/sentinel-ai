@@ -4,7 +4,7 @@
 
 \## Your API URL (after deployment)
 
-Replace `https://your-sentinel-api.com` with your real deployed URL.
+Replace `https://sentinel-ai-3xkl.onrender.com` with your real deployed URL.
 
 
 
@@ -20,7 +20,7 @@ Replace `https://your-sentinel-api.com` with your real deployed URL.
 
 require\_once 'sentinel.php';
 
-Sentinel::init('https://your-sentinel-api.com', 'sk-your-key');
+Sentinel::init('https://sentinel-ai-3xkl.onrender.com', 'sk-your-key');
 
 Sentinel::check(); // blocks malicious requests automatically
 
@@ -36,7 +36,7 @@ Sentinel::check(); // blocks malicious requests automatically
 
 const sentinel = require('./sentinel');
 
-sentinel.init('https://your-sentinel-api.com', 'sk-your-key');
+sentinel.init('https://sentinel-ai-3xkl.onrender.com', 'sk-your-key');
 
 app.use(sentinel.middleware()); // protects every route
 
@@ -52,7 +52,7 @@ app.use(sentinel.middleware()); // protects every route
 
 from sentinel import Sentinel
 
-sentinel = Sentinel('https://your-sentinel-api.com', 'sk-your-key')
+sentinel = Sentinel('https://sentinel-ai-3xkl.onrender.com', 'sk-your-key')
 
 
 
@@ -78,7 +78,7 @@ Add to `settings.py`:
 
 ```python
 
-SENTINEL\_API\_URL = 'https://your-sentinel-api.com'
+SENTINEL\_API\_URL = 'https://sentinel-ai-3xkl.onrender.com'
 
 SENTINEL\_API\_KEY = 'sk-your-key'
 
