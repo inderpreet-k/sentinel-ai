@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sentinel AI — Security for every website</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --white:#ffffff;
+  --bg:#fafaf8;
+  --text:#1a1a2e;
+  --text-soft:#6b7280;
+  --text-lighter:#9ca3af;
+  --border:#e8e4f0;
+  --border-soft:#f0ecf8;
+  --purple:#7c6fcd;
+  --purple-light:#ede9fb;
+  --purple-mid:#c4b8f5;
+  --teal:#5baa9f;
+  --teal-light:#e0f5f3;
+  --teal-mid:#a8ddd8;
+  --coral:#e8816b;
+  --coral-light:#fceae6;
+  --coral-mid:#f5c0b3;
+  --yellow-light:#fef9e7;
+  --yellow-mid:#fce599;
+  --green:#6aaa82;
+  --green-light:#e8f5ee;
+  --red:#e07070;
+  --red-light:#fceaea;
+  --radius:14px;
+  --radius-sm:8px;
+  --radius-pill:100px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--white);color:var(--text);font-size:15px;line-height:1.6}
+
+/* NAV */
+nav{display:flex;align-items:center;justify-content:space-between;padding:0 3rem;height:64px;background:var(--white);border-bottom:1.5px solid var(--border-soft);position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:600;color:var(--text);text-decoration:none}
+.logo-mark{width:32px;height:32px;background:var(--purple-light);border-radius:10px;display:flex;align-items:center;justify-content:center}
+.logo-mark svg{width:18px;height:18px}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-link{font-size:14px;color:var(--text-soft);padding:6px 14px;border-radius:var(--radius-pill);cursor:pointer;background:none;border:none;font-family:'Inter',sans-serif;transition:all 0.15s;text-decoration:none}
+.nav-link:hover{color:var(--text);background:var(--bg)}
+.nav-btn{font-size:14px;font-weight:500;padding:8px 20px;border-radius:var(--radius-pill);cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;border:none}
+.nav-btn-ghost{background:var(--white);color:var(--text);border:1.5px solid var(--border)}
+.nav-btn-ghost:hover{border-color:var(--purple-mid);color:var(--purple)}
+.nav-btn-fill{background:var(--purple);color:var(--white)}
+.nav-btn-fill:hover{background:#6a5ebf}
+.nav-user{display:none;align-items:center;gap:10px}
+.nav-user-chip{font-size:13px;color:var(--text-soft);background:var(--purple-light);padding:5px 14px;border-radius:var(--radius-pill)}
+
+/* HERO */
+.hero{text-align:center;padding:100px 2rem 80px;max-width:800px;margin:0 auto}
+.hero-pill{display:inline-flex;align-items:center;gap:8px;background:var(--purple-light);color:var(--purple);font-size:12px;font-weight:500;padding:6px 16px;border-radius:var(--radius-pill);margin-bottom:2rem;letter-spacing:0.2px}
+.pulse{width:7px;height:7px;background:var(--teal);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.85)}}
+.hero h1{font-size:clamp(38px,6vw,64px);font-weight:600;line-height:1.1;letter-spacing:-2px;color:var(--text);margin-bottom:1.5rem}
+.hero h1 em{font-style:normal;color:var(--purple)}
+.hero p{font-size:18px;color:var(--text-soft);max-width:500px;margin:0 auto 2.5rem;line-height:1.7;font-weight:400}
+.hero-counter{display:inline-flex;align-items:center;gap:10px;background:var(--coral-light);border-radius:var(--radius-sm);padding:10px 20px;margin-bottom:2.5rem}
+.hero-counter strong{font-size:22px;font-weight:600;color:var(--coral);font-variant-numeric:tabular-nums}
+.hero-counter span{font-size:13px;color:var(--coral);opacity:0.8}
+.cta-row{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:var(--radius-pill);font-size:14px;font-weight:500;cursor:pointer;transition:all 0.15s;border:none;font-family:'Inter',sans-serif;text-decoration:none}
+.btn-purple{background:var(--purple);color:var(--white)}
+.btn-purple:hover{background:#6a5ebf;transform:translateY(-1px)}
+.btn-ghost{background:var(--white);color:var(--text-soft);border:1.5px solid var(--border)}
+.btn-ghost:hover{border-color:var(--purple-mid);color:var(--purple)}
+
+/* TICKER */
+.ticker-wrap{overflow:hidden;padding:16px 0;background:var(--bg);border-top:1.5px solid var(--border-soft);border-bottom:1.5px solid var(--border-soft)}
+.ticker-track{display:flex;gap:2rem;animation:ticker 28s linear infinite;width:max-content}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.tick{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--text-lighter);white-space:nowrap}
+.tick-tag{font-size:11px;font-weight:500;padding:2px 8px;border-radius:4px}
+.tick-tag.block{background:var(--coral-light);color:var(--coral)}
+.tick-tag.safe{background:var(--green-light);color:var(--green)}
+
+/* BLOBS */
+.blob-section{position:relative;overflow:hidden}
+.blob{position:absolute;border-radius:50%;filter:blur(0px);pointer-events:none;z-index:0}
+
+/* HOW IT WORKS */
+.section{padding:80px 2rem;max-width:1000px;margin:0 auto;position:relative;z-index:1}
+.section-eyebrow{font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--purple);margin-bottom:12px}
+.section h2{font-size:clamp(28px,4vw,42px);font-weight:600;letter-spacing:-1px;margin-bottom:1rem;line-height:1.15;color:var(--text)}
+.section .sub{font-size:16px;color:var(--text-soft);max-width:460px;margin-bottom:3.5rem;line-height:1.7}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem}
+.step-card{background:var(--white);border:1.5px solid var(--border-soft);border-radius:var(--radius);padding:2rem;transition:border-color 0.2s}
+.step-card:hover{border-color:var(--purple-mid)}
+.step-num{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;margin-bottom:1.25rem}
+.step-num.p{background:var(--purple-light);color:var(--purple)}
+.step-num.t{background:var(--teal-light);color:var(--teal)}
+.step-num.c{background:var(--coral-light);color:var(--coral)}
+.step-card h3{font-size:15px;font-weight:600;margin-bottom:8px;color:var(--text)}
+.step-card p{font-size:13px;color:var(--text-soft);line-height:1.6}
+.step-code{margin-top:1rem;background:var(--bg);border:1.5px solid var(--border-soft);border-radius:var(--radius-sm);padding:12px 14px;font-family:'Courier New',monospace;font-size:11.5px;color:var(--purple);line-height:1.8}
+
+/* PLATFORMS */
+.platform-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;margin:2rem 0 4rem}
+.platform-chip{font-size:13px;font-weight:500;color:var(--text-soft);background:var(--bg);border:1.5px solid var(--border-soft);padding:6px 16px;border-radius:var(--radius-pill)}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.5rem;margin-bottom:5rem}
+.stat-card{border-radius:var(--radius);padding:2rem;text-align:center}
+.stat-card.purple{background:var(--purple-light)}
+.stat-card.teal{background:var(--teal-light)}
+.stat-card.coral{background:var(--coral-light)}
+.stat-card.yellow{background:var(--yellow-light)}
+.stat-num{font-size:40px;font-weight:600;letter-spacing:-2px;margin-bottom:4px}
+.stat-card.purple .stat-num{color:var(--purple)}
+.stat-card.teal .stat-num{color:var(--teal)}
+.stat-card.coral .stat-num{color:var(--coral)}
+.stat-card.yellow .stat-num{color:#c9a227}
+.stat-label{font-size:13px;color:var(--text-soft)}
+
+/* REGISTER */
+.register-section{background:var(--bg);border-top:1.5px solid var(--border-soft);padding:100px 2rem}
+.register-inner{max-width:500px;margin:0 auto}
+.register-inner h2{font-size:36px;font-weight:600;letter-spacing:-1px;margin-bottom:12px;color:var(--text)}
+.register-inner p{color:var(--text-soft);margin-bottom:2.5rem;font-size:15px}
+.form-card{background:var(--white);border:1.5px solid var(--border-soft);border-radius:var(--radius);padding:2rem}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12px;font-weight:500;color:var(--text-soft);margin-bottom:6px;letter-spacing:0.3px;text-transform:uppercase}
+.form-group input{width:100%;padding:11px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;font-family:'Inter',sans-serif;transition:border-color 0.15s;outline:none}
+.form-group input:focus{border-color:var(--purple-mid);background:var(--white)}
+.form-group input::placeholder{color:var(--text-lighter)}
+.divider-row{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--text-lighter);font-size:12px}
+.divider-row::before,.divider-row::after{content:'';flex:1;height:1px;background:var(--border-soft)}
+.msg{font-size:13px;margin-top:10px;padding:10px 14px;border-radius:var(--radius-sm);display:none}
+.msg.error{background:var(--red-light);color:var(--red)}
+.msg.success{background:var(--green-light);color:var(--green)}
+
+/* DASHBOARD */
+#dashboard{display:none;padding:2.5rem 2rem;max-width:1000px;margin:0 auto}
+.dash-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1.5px solid var(--border-soft)}
+.dash-top h1{font-size:24px;font-weight:600;letter-spacing:-0.5px;color:var(--text)}
+.dash-top p{font-size:13px;color:var(--text-soft);margin-top:3px}
+.dash-actions{display:flex;gap:8px}
+.dash-btn{font-size:13px;padding:8px 16px;border-radius:var(--radius-pill);cursor:pointer;font-family:'Inter',sans-serif;border:1.5px solid var(--border);background:var(--white);color:var(--text-soft);transition:all 0.15s}
+.dash-btn:hover{border-color:var(--purple-mid);color:var(--purple)}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem}
+.metric{border-radius:var(--radius);padding:1.25rem}
+.metric.purple{background:var(--purple-light)}
+.metric.coral{background:var(--coral-light)}
+.metric.teal{background:var(--teal-light)}
+.metric.green{background:var(--green-light)}
+.metric-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;opacity:0.7}
+.metric.purple .metric-label{color:var(--purple)}
+.metric.coral .metric-label{color:var(--coral)}
+.metric.teal .metric-label{color:var(--teal)}
+.metric.green .metric-label{color:var(--green)}
+.metric-val{font-size:34px;font-weight:600;letter-spacing:-1px}
+.metric.purple .metric-val{color:var(--purple)}
+.metric.coral .metric-val{color:var(--coral)}
+.metric.teal .metric-val{color:var(--teal)}
+.metric.green .metric-val{color:var(--green)}
+.panel{background:var(--white);border:1.5px solid var(--border-soft);border-radius:var(--radius);margin-bottom:1.5rem;overflow:hidden}
+.panel-top{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;border-bottom:1.5px solid var(--border-soft)}
+.panel-top h3{font-size:14px;font-weight:600;color:var(--text)}
+.panel-top p{font-size:12px;color:var(--text-lighter);margin-top:1px}
+.apikey-row{display:flex;align-items:center;gap:10px;background:var(--bg);border:1.5px solid var(--border-soft);border-radius:var(--radius-sm);padding:12px 16px;margin:1.5rem}
+.apikey-val{font-family:'Courier New',monospace;font-size:13px;flex:1;color:var(--text-soft);word-break:break-all}
+.copy-btn{font-size:12px;font-weight:500;padding:6px 14px;border-radius:var(--radius-pill);border:1.5px solid var(--purple-mid);background:var(--purple-light);color:var(--purple);cursor:pointer;white-space:nowrap;transition:all 0.15s;font-family:'Inter',sans-serif}
+.copy-btn:hover{background:var(--purple);color:var(--white)}
+.panel-tabs{display:flex;gap:0;padding:0 1.5rem;border-bottom:1.5px solid var(--border-soft)}
+.ptab{font-size:13px;font-weight:500;padding:12px 16px;cursor:pointer;color:var(--text-soft);border-bottom:2px solid transparent;margin-bottom:-1.5px;transition:all 0.15s}
+.ptab.active{color:var(--purple);border-bottom-color:var(--purple)}
+.ptab:hover{color:var(--text)}
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-lighter);padding:12px 1.5rem;text-align:left;border-bottom:1.5px solid var(--border-soft);background:var(--bg)}
+td{padding:13px 1.5rem;font-size:13px;border-bottom:1.5px solid var(--border-soft);color:var(--text);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg)}
+.pill{display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;border-radius:var(--radius-pill)}
+.pill-block{background:var(--coral-light);color:var(--coral)}
+.pill-allow{background:var(--green-light);color:var(--green)}
+.mono{font-family:'Courier New',monospace;font-size:12px;color:var(--text-soft)}
+.empty-state{padding:3rem;text-align:center;color:var(--text-lighter);font-size:13px}
+.unblock-btn{font-size:11px;font-weight:500;padding:5px 12px;border-radius:var(--radius-pill);border:1.5px solid var(--coral-mid);background:var(--coral-light);color:var(--coral);cursor:pointer;transition:all 0.15s;font-family:'Inter',sans-serif}
+.unblock-btn:hover{background:var(--coral);color:var(--white)}
+.sdk-block{padding:1.5rem}
+.sdk-lang-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.sdk-lang-label{font-size:12px;font-weight:600;color:var(--text-soft);letter-spacing:0.3px;text-transform:uppercase}
+.sdk-pre{background:var(--bg);border:1.5px solid var(--border-soft);border-radius:var(--radius-sm);padding:1rem 1.25rem;font-family:'Courier New',monospace;font-size:12px;color:var(--purple);line-height:1.8;white-space:pre;overflow-x:auto;margin-bottom:1.5rem}
+.sdk-pre:last-child{margin-bottom:0}
+.sdk-note{font-size:12px;color:var(--text-lighter);margin-top:1rem}
+.sdk-note a{color:var(--purple);text-decoration:none}
+
+/* FOOTER */
+footer{background:var(--bg);border-top:1.5px solid var(--border-soft);padding:2.5rem 2rem;text-align:center}
+footer p{font-size:13px;color:var(--text-lighter)}
+footer a{color:var(--text-soft);text-decoration:none}
+footer a:hover{color:var(--purple)}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="#">
+    <div class="logo-mark">
+      <svg viewBox="0 0 18 18" fill="none"><path d="M9 2L3 6v6l6 4 6-4V6L9 2z" stroke="#7c6fcd" stroke-width="1.5" stroke-linejoin="round"/><circle cx="9" cy="9" r="2" fill="#7c6fcd"/></svg>
+    </div>
+    Sentinel AI
+  </a>
+  <div class="nav-right" id="nav-right">
+    <a class="nav-link" href="#how">How it works</a>
+    <button class="nav-btn nav-btn-ghost" onclick="scrollTo('#register')">Sign in</button>
+    <button class="nav-btn nav-btn-fill" onclick="scrollTo('#register')">Get started free</button>
+  </div>
+  <div class="nav-user" id="nav-user">
+    <span class="nav-user-chip" id="nav-user-chip"></span>
+    <button class="nav-btn nav-btn-ghost" onclick="refreshDash()">Refresh</button>
+    <button class="nav-btn nav-btn-ghost" onclick="logout()">Sign out</button>
+  </div>
+</nav>
+
+<div id="landing">
+
+  <section class="hero">
+    <div class="hero-pill"><span class="pulse"></span> Live protection &nbsp;·&nbsp; Completely free</div>
+    <h1>Security that protects <em>every website</em></h1>
+    <p>Stop SQL injection, XSS, and other attacks before they ever reach your database — powered by machine learning.</p>
+    <div class="hero-counter">
+      <strong id="live-counter">2,847</strong>
+      <span>attacks blocked across all sites</span>
+    </div>
+    <div class="cta-row">
+      <button class="btn btn-purple" onclick="scrollTo('#register')">Protect my site for free</button>
+      <a class="btn btn-ghost" href="https://github.com/inderpreet-k/sentinel-ai" target="_blank">View on GitHub →</a>
+    </div>
+  </section>
+
+  <div class="ticker-wrap">
+    <div class="ticker-track" id="ticker"></div>
+  </div>
+
+  <section class="section" id="how">
+    <div class="section-eyebrow">How it works</div>
+    <h2>Up and running in 5 minutes</h2>
+    <p class="sub">No server changes, no infrastructure, no DevOps degree required. Three steps and you're protected.</p>
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-num p">01</div>
+        <h3>Register your site</h3>
+        <p>Enter your website name and email. Get a unique API key instantly — no credit card, ever.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num t">02</div>
+        <h3>Download one file</h3>
+        <p>Grab the SDK for your stack — PHP, JavaScript, or Python. Drop it into your project folder.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num c">03</div>
+        <h3>Add 3 lines of code</h3>
+        <p>Paste the snippet at the top of your page. Every request is now checked automatically by our AI.</p>
+        <div class="step-code">require_once 'sentinel.php';<br>Sentinel::init($url, $key);<br>Sentinel::check();</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="section-eyebrow">Works with</div>
+    <div class="platform-row">
+      <span class="platform-chip">WordPress</span>
+      <span class="platform-chip">PHP</span>
+      <span class="platform-chip">Laravel</span>
+      <span class="platform-chip">Express.js</span>
+      <span class="platform-chip">Next.js</span>
+      <span class="platform-chip">Flask</span>
+      <span class="platform-chip">Django</span>
+      <span class="platform-chip">Any HTTP stack</span>
+    </div>
+    <div class="stats">
+      <div class="stat-card coral"><div class="stat-num" id="stat-blocked">2,847</div><div class="stat-label">Attacks blocked</div></div>
+      <div class="stat-card purple"><div class="stat-num">2</div><div class="stat-label">Detection layers</div></div>
+      <div class="stat-card teal"><div class="stat-num">50ms</div><div class="stat-label">Avg response time</div></div>
+      <div class="stat-card yellow"><div class="stat-num">99.9%</div><div class="stat-label">Uptime</div></div>
+    </div>
+  </section>
+
+  <section class="register-section" id="register">
+    <div class="register-inner">
+      <h2>Get started free</h2>
+      <p>Your API key is ready in seconds. No credit card, no setup, no waiting.</p>
+      <div class="form-card">
+        <div id="form-register">
+          <div class="form-group"><label>Website name</label><input type="text" id="reg-name" placeholder="My portfolio site"></div>
+          <div class="form-group"><label>Your email</label><input type="email" id="reg-email" placeholder="you@example.com"></div>
+          <button class="btn btn-purple" style="width:100%;justify-content:center" onclick="register()">Get my API key →</button>
+          <div class="msg" id="reg-msg"></div>
+          <div class="divider-row">already have a key?</div>
+          <div class="form-group"><label>API key</label><input type="text" id="login-key" placeholder="sk-..."></div>
+          <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="loginWithKey()">Sign in with API key</button>
+          <div class="msg" id="login-msg"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="dash-top">
+    <div>
+      <h1 id="dash-title">My site</h1>
+      <p id="dash-sub"></p>
+    </div>
+    <div class="dash-actions">
+      <button class="dash-btn" onclick="refreshDash()">↻ Refresh</button>
+      <button class="dash-btn" onclick="logout()">Sign out</button>
+    </div>
+  </div>
+
+  <div class="metrics">
+    <div class="metric purple"><div class="metric-label">Total requests</div><div class="metric-val" id="m-total">—</div></div>
+    <div class="metric coral"><div class="metric-label">Attacks blocked</div><div class="metric-val" id="m-blocked">—</div></div>
+    <div class="metric teal"><div class="metric-label">Blocked IPs</div><div class="metric-val" id="m-ips">—</div></div>
+    <div class="metric green"><div class="metric-label">Clean requests</div><div class="metric-val" id="m-clean">—</div></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-top">
+      <div><h3>Your API key</h3><p>Keep this private — never commit to GitHub</p></div>
+      <button class="copy-btn" onclick="copyKey()">Copy key</button>
+    </div>
+    <div class="apikey-row">
+      <div class="apikey-val" id="dash-key">sk-••••••••••••••••••••••</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-tabs">
+      <div class="ptab active" onclick="switchTab('log')">Attack log</div>
+      <div class="ptab" onclick="switchTab('ips')">Blocked IPs</div>
+      <div class="ptab" onclick="switchTab('setup')">Integration guide</div>
+    </div>
+
+    <div id="tab-log">
+      <table>
+        <thead><tr><th>IP address</th><th>Decision</th><th>Reason</th><th>Time</th></tr></thead>
+        <tbody id="log-body"><tr><td colspan="4" class="empty-state">Loading...</td></tr></tbody>
+      </table>
+    </div>
+
+    <div id="tab-ips" style="display:none">
+      <table>
+        <thead><tr><th>IP address</th><th>Blocked for</th><th>Since</th><th></th></tr></thead>
+        <tbody id="ips-body"><tr><td colspan="4" class="empty-state">Loading...</td></tr></tbody>
+      </table>
+    </div>
+
+    <div id="tab-setup" style="display:none">
+      <div class="sdk-block">
+        <p style="font-size:13px;color:var(--text-soft);margin-bottom:1.5rem;line-height:1.6">Download the SDK for your language from <a href="https://github.com/inderpreet-k/sentinel-ai/tree/main/sdks" target="_blank" style="color:var(--purple)">GitHub</a>, drop it in your project folder, then copy the snippet below.</p>
+        <div class="sdk-lang-row"><span class="sdk-lang-label">PHP — WordPress, Laravel, plain PHP</span><button class="copy-btn" onclick="copyCode('php')">Copy</button></div>
+        <div class="sdk-pre" id="sdk-php"></div>
+        <div class="sdk-lang-row"><span class="sdk-lang-label">JavaScript — Express, Next.js</span><button class="copy-btn" onclick="copyCode('js')">Copy</button></div>
+        <div class="sdk-pre" id="sdk-js"></div>
+        <div class="sdk-lang-row"><span class="sdk-lang-label">Python — Flask, Django</span><button class="copy-btn" onclick="copyCode('py')">Copy</button></div>
+        <div class="sdk-pre" id="sdk-py"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Built by <a href="https://github.com/inderpreet-k" target="_blank">Inderpreet</a> &nbsp;·&nbsp; <a href="https://github.com/inderpreet-k/sentinel-ai" target="_blank">GitHub</a> &nbsp;·&nbsp; Powered by FastAPI + scikit-learn &nbsp;·&nbsp; Hosted free on Render</p>
+</footer>
+
+<script>
+const API='https://sentinel-ai-3xkl.onrender.com';
+let KEY='',SITE={};
+
+function scrollTo(sel){document.querySelector(sel).scrollIntoView({behavior:'smooth'})}
+
+function showMsg(id,text,type){
+  const el=document.getElementById(id);
+  el.textContent=text;el.className='msg '+type;el.style.display='block';
+  setTimeout(()=>el.style.display='none',5000);
+}
+
+function buildTicker(){
+  const items=[
+    {ip:'185.220.101.42',label:'SQL injection',type:'block'},
+    {ip:'94.102.49.190',label:'XSS attempt',type:'block'},
+    {ip:'23.129.64.218',label:'Clean request',type:'safe'},
+    {ip:'198.54.132.88',label:'UNION SELECT',type:'block'},
+    {ip:'5.188.206.26',label:'Script injection',type:'block'},
+    {ip:'45.142.212.100',label:'Clean request',type:'safe'},
+    {ip:"91.108.4.0",label:"' OR '1'='1",type:'block'},
+    {ip:'176.10.104.240',label:'Clean request',type:'safe'},
+    {ip:'185.107.47.215',label:'DROP TABLE',type:'block'},
+    {ip:'109.70.100.22',label:'Clean request',type:'safe'},
+  ];
+  const doubled=[...items,...items];
+  const html=doubled.map(a=>`<span class="tick"><span class="tick-tag ${a.type}">${a.type==='block'?'BLOCKED':'CLEAN'}</span>${a.ip} — ${a.label}</span>`).join('');
+  const el=document.getElementById('ticker');
+  el.innerHTML=html+html;
+}
+
+async function register(){
+  const name=document.getElementById('reg-name').value.trim();
+  const email=document.getElementById('reg-email').value.trim();
+  if(!name||!email){showMsg('reg-msg','Please fill in both fields.','error');return;}
+  try{
+    const r=await fetch(API+'/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,owner_email:email})});
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.detail||'Registration failed');
+    KEY=d.api_key;SITE={name:d.site_name,email,id:d.site_id};
+    sessionStorage.setItem('sk',KEY);sessionStorage.setItem('si',JSON.stringify(SITE));
+    showMsg('reg-msg','All set! Taking you to your dashboard...','success');
+    setTimeout(openDash,900);
+  }catch(e){showMsg('reg-msg',e.message,'error');}
+}
+
+async function loginWithKey(){
+  const key=document.getElementById('login-key').value.trim();
+  if(!key){showMsg('login-msg','Please enter your API key.','error');return;}
+  try{
+    const r=await fetch(API+'/me',{headers:{'x-api-key':key}});
+    if(!r.ok)throw new Error('Invalid API key. Please check and try again.');
+    const d=await r.json();
+    KEY=key;SITE={name:d.name,email:d.owner_email,id:d.site_id};
+    sessionStorage.setItem('sk',KEY);sessionStorage.setItem('si',JSON.stringify(SITE));
+    openDash();
+  }catch(e){showMsg('login-msg',e.message,'error');}
+}
+
+function openDash(){
+  document.getElementById('landing').style.display='none';
+  document.getElementById('dashboard').style.display='block';
+  document.getElementById('nav-right').style.display='none';
+  document.getElementById('nav-user').style.display='flex';
+  document.getElementById('nav-user-chip').textContent=SITE.name;
+  document.getElementById('dash-title').textContent=SITE.name;
+  document.getElementById('dash-sub').textContent=SITE.email+' · site ID '+SITE.id;
+  document.getElementById('dash-key').textContent=KEY;
+  setSdkCode();loadData();
+}
+
+async function loadData(){await Promise.all([loadLog(),loadIPs()]);}
+
+async function loadLog(){
+  try{
+    const r=await fetch(API+'/events',{headers:{'x-api-key':KEY}});
+    const d=await r.json();const ev=d.events||[];
+    const blocked=ev.filter(e=>e.decision==='block').length;
+    document.getElementById('m-total').textContent=ev.length;
+    document.getElementById('m-blocked').textContent=blocked;
+    document.getElementById('m-clean').textContent=ev.length-blocked;
+    const tb=document.getElementById('log-body');
+    if(!ev.length){tb.innerHTML='<tr><td colspan="4" class="empty-state">No requests yet. Add Sentinel to your site to start seeing data.</td></tr>';return;}
+    tb.innerHTML=ev.map(e=>`<tr>
+      <td class="mono">${e.ip_address}</td>
+      <td><span class="pill ${e.decision==='block'?'pill-block':'pill-allow'}">${e.decision}</span></td>
+      <td style="color:var(--text-soft);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.reason}</td>
+      <td style="color:var(--text-lighter);font-size:12px">${new Date(e.checked_at).toLocaleString()}</td>
+    </tr>`).join('');
+  }catch(e){}
+}
+
+async function loadIPs(){
+  try{
+    const r=await fetch(API+'/blacklist',{headers:{'x-api-key':KEY}});
+    const d=await r.json();const ips=d.entries||[];
+    document.getElementById('m-ips').textContent=ips.length;
+    const tb=document.getElementById('ips-body');
+    if(!ips.length){tb.innerHTML='<tr><td colspan="4" class="empty-state">No blocked IPs yet. Attackers will appear here automatically.</td></tr>';return;}
+    tb.innerHTML=ips.map(e=>`<tr>
+      <td class="mono">${e.ip_address}</td>
+      <td style="color:var(--text-soft);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.attack_type}</td>
+      <td style="color:var(--text-lighter);font-size:12px">${new Date(e.blocked_at).toLocaleString()}</td>
+      <td><button class="unblock-btn" onclick="unblock('${e.ip_address}')">Unblock</button></td>
+    </tr>`).join('');
+  }catch(e){}
+}
+
+async function unblock(ip){
+  try{
+    await fetch(API+'/blacklist',{method:'DELETE',headers:{'Content-Type':'application/json','x-api-key':KEY},body:JSON.stringify({ip})});
+    loadIPs();
+  }catch(e){}
+}
+
+function setSdkCode(){
+  document.getElementById('sdk-php').textContent=`<?php\nrequire_once 'sentinel.php';\nSentinel::init('${API}', '${KEY}');\nSentinel::check();\n?>`;
+  document.getElementById('sdk-js').textContent=`const sentinel = require('./sentinel');\nsentinel.init('${API}', '${KEY}');\napp.use(sentinel.middleware());`;
+  document.getElementById('sdk-py').textContent=`from sentinel import Sentinel\nsentinel = Sentinel('${API}', '${KEY}')\n\n@app.before_request\ndef protect():\n    result = sentinel.check_flask_request(request)\n    if result['decision'] == 'block':\n        return jsonify({'error': 'Blocked'}), 403`;
+}
+
+function copyKey(){
+  navigator.clipboard.writeText(KEY).then(()=>{
+    const btn=event.target;btn.textContent='Copied!';
+    setTimeout(()=>btn.textContent='Copy key',2000);
+  });
+}
+
+function copyCode(lang){
+  navigator.clipboard.writeText(document.getElementById('sdk-'+lang).textContent).then(()=>{
+    const btn=event.target;btn.textContent='Copied!';
+    setTimeout(()=>btn.textContent='Copy',2000);
+  });
+}
+
+function switchTab(name){
+  ['log','ips','setup'].forEach(t=>document.getElementById('tab-'+t).style.display=t===name?'block':'none');
+  document.querySelectorAll('.ptab').forEach((el,i)=>el.classList.toggle('active',['log','ips','setup'][i]===name));
+}
+
+function refreshDash(){loadData();}
+
+function logout(){
+  sessionStorage.clear();KEY='';SITE={};
+  document.getElementById('landing').style.display='block';
+  document.getElementById('dashboard').style.display='none';
+  document.getElementById('nav-right').style.display='flex';
+  document.getElementById('nav-user').style.display='none';
+  window.scrollTo(0,0);
+}
+
+const sk=sessionStorage.getItem('sk'),si=sessionStorage.getItem('si');
+if(sk&&si){KEY=sk;SITE=JSON.parse(si);openDash();}
+buildTicker();
+</script>
+</body>
+</html>
