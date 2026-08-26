@@ -1,131 +1,114 @@
-# Sentinel AI — Automated Security Incident Response System
+# Sentinel AI — Automated Web Security API
 
-> **INFO3235 Software Quality Assurance — Term Project**  
-> Kwantlen Polytechnic University | April 2026  
-> Student: Inderpreet Kaur
+> Live multi-tenant security API. Drop it into any website and it screens incoming requests for SQL injection, XSS, and other attacks in real time.
+
+**Live dashboard:** https://sentinel-ai-web.onrender.com
+**Live API:** https://sentinel-ai-3xkl.onrender.com
+**GitHub:** https://github.com/inderpreet-k/sentinel-ai
 
 ---
 
 ## What is Sentinel AI?
 
-Sentinel AI is a real-time security middleware tool that monitors a PHP web application, detects malicious input using Machine Learning, and automatically blocks attackers — all without modifying a single line of the target application's original code.
+Sentinel AI is a hosted security middleware service. Register a site, get an API key, and send it incoming request data — it tells you whether to allow or block, using a mix of explicit rules and a trained ML classifier.
 
-Built to demonstrate **automated incident response** and **defect containment** from Software Quality Assurance coursework.
-
----
-
-## Quick Start — Test It in 5 Minutes
-
-This repo includes a ready-made vulnerable PHP target (`target.php`) so you can see Sentinel AI in action immediately. No extra setup needed beyond XAMPP and Python.
-
-### What you need
-- [XAMPP](https://www.apachefriends.org/) (Apache + MySQL)
-- Python 3.8+
-- A browser
-
-### Step 1 — Clone the repo
-```bash
-git clone https://github.com/inderpreet-k/sentinel-ai.git
-```
-
-### Step 2 — Copy to XAMPP
-Copy the entire repo folder into:
-```
-C:\xampp\htdocs\sentinel-ai\
-```
-
-### Step 3 — Set up the database
-1. Start XAMPP — make sure Apache and MySQL are green
-2. Open `http://localhost/phpmyadmin`
-3. Click **New** → name it `sentinel_test` → click **Create**
-4. Click the **SQL** tab → paste and run the contents of `sql/setup.sql`
-
-### Step 4 — Install Python dependencies
-```bash
-pip install scikit-learn mysql-connector-python joblib pandas
-```
-
-### Step 5 — Update the database name in sentinel_brain.py
-Open `sentinel_brain.py` and find:
-```python
-database="catering_ms"
-```
-Change it to:
-```python
-database="sentinel_test"
-```
-
-### Step 6 — Start the sentinel
-Open a terminal in the repo folder:
-```bash
-python sentinel_brain.py
-```
-You should see:
-```
---- Sentinel AI is now Active and Monitoring Traffic ---
---- Hybrid Mode: ML + Explicit Rules ---
-```
-
-### Step 7 — Open the test app
-Go to: `http://localhost/sentinel-ai/target.php`
-
-### Step 8 — Test it
-
-**Safe input** (should work normally):
-```
-Surrey, BC
-```
-
-**Attack inputs** (should trigger block — try these one at a time):
-```
-' OR '1'='1
-delete from bookings where id=1
-<script>alert('XSS')</script>
-system('cat /etc/passwd')
-sElEcT * fRoM bookings
-```
-
-After submitting an attack, refresh the page — you will see the **Access Denied** screen.
-
-**To reset after a block**, run this in phpMyAdmin:
-```sql
-DELETE FROM blacklist WHERE ip_address = '::1';
-```
-Then clear the log file (`security_audit.log`) and restart the sentinel.
+Originally built as a single-machine PHP/MySQL project for INFO3235 (Software Quality Assurance) at KPU. It has since been rebuilt into a fully deployed, multi-tenant service so any site — not just one local PHP app — can use it.
 
 ---
 
-## How It Works
+## Architecture
 
 ```
-User submits form
-       │
-       ▼
-PHP logs payload ──► security_audit.log
-                            │
-                            ▼
-                Python Sentinel reads log
-                            │
-                ┌───────────┴───────────┐
-                │                       │
-          Explicit Rules            ML Model
-          (high confidence          (Random Forest
-           signatures)              TF-IDF n-gram)
-                │                       │
-                └───────────┬───────────┘
-                            │
-                Attack? (confidence > 0.75)
-                            │
-                     YES ───┼─── NO
-                      │              │
-               INSERT INTO       [SAFE] logged
-               blacklist table
-                      │
-               PHP checks blacklist
-               on next page load
-                      │
-               ACCESS DENIED screen
+Client site (PHP / JS / Python)
+        │
+        ▼
+  Sentinel SDK  ──►  POST /check  (FastAPI, hosted on Render)
+        │                  │
+        │        ┌─────────┴─────────┐
+        │        │                   │
+        │  Explicit Rules       ML Model
+        │  (high-confidence     (Random Forest,
+        │   signatures)         TF-IDF n-gram)
+        │        │                   │
+        │        └─────────┬─────────┘
+        │                  │
+        │        Attack? (confidence > 0.75)
+        │                  │
+        │           YES ───┼─── NO
+        │            │              │
+        │      Blacklist IP      Logged as clean
+        │      + block            (allowed)
+        │            │
+        └── Response: { decision, reason, confidence }
 ```
+
+- **API:** FastAPI, deployed on Render
+- **Database:** PostgreSQL (Supabase), multi-tenant — one `sites` row per registered website, scoped `blacklist` and `events` tables per site
+- **ML:** Random Forest classifier, character-level TF-IDF n-grams, trained on 24,161 labeled payloads, 92% detection accuracy
+- **Dashboard:** static site for registering, viewing your API key, attack log, and blocked IPs
+
+---
+
+## Quick Start — Protect Your Site in 3 Steps
+
+### Step 1 — Get an API key
+Register at the [live dashboard](https://sentinel-ai-web.onrender.com). Enter your site name and email, and your API key is generated instantly.
+
+> Note: the API is hosted on Render's free tier, which spins down after inactivity. The first request after a period of no traffic may take up to ~50 seconds while it wakes back up — subsequent requests are fast.
+
+### Step 2 — Download the SDK and drop it in your project
+Go to [`/sdks`](https://github.com/inderpreet-k/sentinel-ai/tree/main/sdks), open the folder for your language, and download the SDK file (`sentinel.php`, `sentinel.js`, or `sentinel.py`). Click the file → **Raw** → save it directly into your project folder, next to your main app file.
+
+Then copy the matching snippet below:
+
+**PHP**
+```php
+<?php
+require_once 'sentinel.php';
+Sentinel::init('https://sentinel-ai-3xkl.onrender.com', 'sk-your-key-here');
+Sentinel::check();
+?>
+```
+
+**JavaScript (Express / Next.js)**
+```js
+const sentinel = require('./sentinel');
+sentinel.init('https://sentinel-ai-3xkl.onrender.com', 'sk-your-key-here');
+app.use(sentinel.middleware());
+```
+
+**Python (Flask / Django)**
+```python
+from sentinel import Sentinel
+
+sentinel = Sentinel('https://sentinel-ai-3xkl.onrender.com', 'sk-your-key-here')
+
+@app.before_request
+def protect():
+    result = sentinel.check_flask_request(request)
+    if result['decision'] == 'block':
+        return jsonify({'error': 'Blocked'}), 403
+```
+
+### Step 3 — Deploy
+Push your changes. Every request to your site now gets screened before it reaches your app logic.
+
+---
+
+## Try It Live
+
+Want to see Sentinel AI actually catch an attack instead of just reading about it? It's protecting a real production app right now:
+
+**[Spending Spotlight](https://spending-spotlight.vercel.app/)** — an AI bank statement analyzer, secured with Sentinel AI.
+
+1. Open the link above
+2. In the "Add Custom Category" textbox, try entering: `<script>alert('XSS')</script>`
+3. Continue through and upload a **real bank statement PDF** — a test/blank/fake file won't work here, since the app needs actual transaction lines to parse or it will return "no transactions found"
+4. Submit to analyze
+
+The request gets screened by Sentinel before it's processed.
+
+> **We do not save any of your data.** Your uploaded statement is processed in memory to extract and classify transactions, then deleted immediately after — nothing is stored on our end.
 
 ---
 
@@ -143,85 +126,7 @@ PHP logs payload ──► security_audit.log
 | OS Command Injection | Explicit Rule | `system('cat /etc/passwd')` |
 | Mixed-case Obfuscation | ML Detection (1.00) | `sElEcT * fRoM users` |
 
----
-
-## Tech Stack
-
-- **Python 3.13** — Sentinel brain and training scripts
-- **Scikit-Learn** — Random Forest Classifier (300 trees, balanced weights)
-- **TF-IDF Vectorizer** — Character-level n-grams (1–4), 80,000 features
-- **MySQL** — Blacklist persistence layer
-- **Java JUnit 5** — 25 automated integration test cases
-- **PHP / XAMPP** — Target application environment
-
----
-
-## Project Structure
-
-```
-sentinel-ai/
-├── target.php                  # Standalone vulnerable PHP test app
-├── sentinel_brain.py           # Main monitoring and response engine
-├── train_sentinel.py           # Model training script
-├── training_data_encoded.csv   # Base64-encoded training dataset (24,161 rows)
-├── sentinel_model.pkl          # Trained Random Forest model
-├── vectorizer.pkl              # Fitted TF-IDF vectorizer
-├── README.md
-├── junit_tests/
-│   └── SentinelTest.java       # JUnit 5 integration test suite (25 cases)
-└── sql/
-    ├── setup.sql               # Creates sentinel_test database and tables
-    └── blacklist.sql           # Blacklist table only (for existing apps)
-```
-
----
-
-## Integrating Into Your Own PHP App
-
-If you want to protect an existing PHP application instead of using `target.php`:
-
-**1. Add the logging hook** to your main controller (after `session_start()`):
-```php
-$log_file = __DIR__ . '/../security_audit.log';
-$log_entry = json_encode([
-    'ip'        => $_SERVER['REMOTE_ADDR'],
-    'timestamp' => date('Y-m-d H:i:s'),
-    'action'    => filter_input(INPUT_GET, 'action'),
-    'payload'   => $_POST
-]) . PHP_EOL;
-file_put_contents($log_file, $log_entry, FILE_APPEND);
-```
-
-**2. Add the access control check** to your database connection file:
-```php
-$ip = $_SERVER['REMOTE_ADDR'];
-$check = $db->prepare("SELECT attack_type FROM blacklist WHERE ip_address = ?");
-$check->execute([$ip]);
-$blocked = $check->fetch();
-if ($blocked) {
-    die("<div style='background:red;color:white;padding:50px;text-align:center;'>
-        <h1>ACCESS DENIED</h1>
-        <p>Sentinel AI: " . htmlspecialchars($blocked['attack_type']) . "</p>
-    </div>");
-}
-```
-
-**3. Run `sql/blacklist.sql`** against your database.
-
-**4. Update `sentinel_brain.py`** with your database name and start it.
-
----
-
-## Test Results (JUnit 5 — 25 Cases)
-
-| Category | Cases | Result |
-|---|---|---|
-| Known Attack Vectors (TC001–TC015) | 15 | 14 Pass, 1 Fail |
-| Safe BC Locations (TC016–TC020) | 5 | 5 Pass |
-| Natural Language Edge Cases (TC021–TC025) | 5 | 4 Pass, 1 Fail |
-| **Total** | **25** | **23 Pass (92%)** |
-
-**Known limitations:**
+**Known limitations** (from JUnit evaluation, 25 test cases, 92% pass rate):
 - `update users set role='admin'` — false negative at ML confidence 0.58 (below 0.75 threshold)
 - `Select all vegetarian options please` — false positive at ML confidence 0.76
 
@@ -229,17 +134,59 @@ These reflect the real-world tradeoff between sensitivity and specificity in ML-
 
 ---
 
-## Academic Context
+## Tech Stack
 
-Developed for INFO3235 Software Quality Assurance at KPU demonstrating:
+- **Python 3.13** — API and ML pipeline
+- **FastAPI** — multi-tenant REST API
+- **PostgreSQL** (Supabase) — sites, blacklist, and event log storage
+- **Scikit-Learn** — Random Forest Classifier (300 trees, balanced weights)
+- **TF-IDF Vectorizer** — character-level n-grams (1–4), 80,000 features
+- **Render** — hosting for both the API and dashboard
+- **Java JUnit 5** — 25 automated integration test cases (from original academic build)
+
+---
+
+## Project Structure
+
+```
+sentinel-ai/
+├── api/
+│   ├── main.py              # FastAPI app, routes, auth
+│   ├── db.py                 # PostgreSQL models and queries
+│   └── detector.py           # ML + rule-based analysis
+├── dashboard/                 # Static frontend (registration, API key, attack log)
+├── sdks/
+│   ├── php/
+│   ├── javascript/
+│   └── python/
+├── junit_tests/
+│   └── SentinelTest.java     # JUnit 5 integration test suite (25 cases)
+├── sentinel_model.pkl         # Trained Random Forest model
+├── vectorizer.pkl             # Fitted TF-IDF vectorizer
+├── training_data_encoded.csv  # Training dataset (24,161 rows)
+└── requirements.txt
+```
+
+---
+
+## Academic Origins
+
+Originally developed for **INFO3235 Software Quality Assurance** at Kwantlen Polytechnic University (April 2026) as a single-machine PHP/MySQL prototype, demonstrating:
+
 - **Defect Containment** — blocking attackers without patching the vulnerable code
 - **Fault Tolerance** — system stays operational for legitimate users under attack
 - **Automated Incident Response** — zero human intervention from detection to block
 - **Dynamic Testing** — real-time runtime analysis of live traffic
 - **Predictive Validation** — quantifiable detection metrics via JUnit
 
+It has since been rebuilt as a production multi-tenant API to demonstrate real-world deployment beyond the original coursework scope.
+
 ---
 
 ## License
 
 MIT License — free to use, modify, and distribute with attribution.
+
+---
+
+Built by [Inderpreet Kaur](https://github.com/inderpreet-k) · Powered by FastAPI, PostgreSQL, and scikit-learn
